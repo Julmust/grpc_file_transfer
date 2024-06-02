@@ -1,0 +1,19 @@
+syntax="proto3";
+
+package proto;
+
+option go_package="github.com/julmust/grpc_file_transfer";
+
+message TransferInfo {
+    string filename = 1;
+}
+
+message Transfer {
+    string filename = 1;
+    float filesize = 2;
+    bytes file = 3;
+}
+
+service TransferService {
+    rpc CreateTransfer(TransferInfo) returns (Transfer) {}
+}
