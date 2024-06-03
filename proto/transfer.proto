@@ -10,7 +10,7 @@ message TransferInfoMsg {
 
 message GetBatchTransferMsg {
     string filename = 1;
-    float filesize = 2;
+    int64 filesize = 2;
     bytes file = 3;
 }
 

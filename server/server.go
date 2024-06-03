@@ -39,7 +39,7 @@ func (s *TransferServer) GetBatchTransfer(ctx context.Context, in *pb.TransferIn
 
 	trans := &pb.GetBatchTransferMsg{
 		Filename: fp,
-		Filesize: float32(fileSize.Size()),
+		Filesize: fileSize.Size(),
 		File:     data,
 	}
 
@@ -61,10 +61,10 @@ func (s *TransferServer) PutBatchTransfer(ctx context.Context, in *pb.PutBatchTr
 
 func main() {
 	lis, err := net.Listen("tcp", PORT)
-
 	if err != nil {
 		log.Fatalf("failed connection: %v", err)
 	}
+	defer lis.Close()
 
 	s := grpc.NewServer()
 	pb.RegisterTransferServiceServer(s, &TransferServer{})
