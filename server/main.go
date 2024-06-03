@@ -21,29 +21,42 @@ type TransferServer struct {
 	pb.UnimplementedTransferServiceServer
 }
 
-func (s *TransferServer) CreateTransfer(ctx context.Context, in *pb.TransferInfo) (*pb.Transfer, error) {
+func (s *TransferServer) GetBatchTransfer(ctx context.Context, in *pb.TransferInfoMsg) (*pb.GetBatchTransferMsg, error) {
 	log.Printf("Received request for: %v", in.GetFilename())
 	fp := FILE_FOLDER + in.GetFilename()
 
 	data, err := os.ReadFile(fp)
 	if err != nil {
 		log.Printf("Error opening file: %v", err)
-		return &pb.Transfer{}, status.Errorf(codes.NotFound, "Could not open file: "+in.GetFilename())
+		return &pb.GetBatchTransferMsg{}, status.Errorf(codes.NotFound, "Could not open file: "+in.GetFilename())
 	}
 
 	fileSize, err := os.Stat(fp)
 	if err != nil {
 		log.Print(err)
-		return &pb.Transfer{}, err
+		return &pb.GetBatchTransferMsg{}, err
 	}
 
-	trans := &pb.Transfer{
+	trans := &pb.GetBatchTransferMsg{
 		Filename: fp,
 		Filesize: float32(fileSize.Size()),
 		File:     data,
 	}
 
 	return trans, nil
+}
+
+func (s *TransferServer) PutBatchTransfer(ctx context.Context, in *pb.PutBatchTransferMsg) (*pb.TransferInfoMsg, error) {
+	log.Printf("Recieved upload request for: %v", in.GetFilename())
+	fp := FILE_FOLDER + in.GetFilename()
+
+	err := os.WriteFile(fp, in.GetFile(), 0666)
+	if err != nil {
+		log.Print(err)
+		return &pb.TransferInfoMsg{}, status.Errorf(codes.PermissionDenied, "Could not write file: %s", in.GetFilename())
+	}
+
+	return &pb.TransferInfoMsg{Filename: fp}, nil
 }
 
 func main() {
