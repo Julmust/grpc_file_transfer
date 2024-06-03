@@ -4,16 +4,22 @@ package proto;
 
 option go_package="github.com/julmust/grpc_file_transfer";
 
-message TransferInfo {
+message TransferInfoMsg {
     string filename = 1;
 }
 
-message Transfer {
+message GetBatchTransferMsg {
     string filename = 1;
     float filesize = 2;
     bytes file = 3;
 }
 
+message PutBatchTransferMsg {
+    string filename = 1;
+    bytes file = 2;
+}
+
 service TransferService {
-    rpc CreateTransfer(TransferInfo) returns (Transfer) {}
+    rpc GetBatchTransfer(TransferInfoMsg) returns (GetBatchTransferMsg) {}
+    rpc PutBatchTransfer(PutBatchTransferMsg) returns (TransferInfoMsg) {}
 }

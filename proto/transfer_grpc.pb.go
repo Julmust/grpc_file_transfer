@@ -22,7 +22,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TransferServiceClient interface {
-	CreateTransfer(ctx context.Context, in *TransferInfo, opts ...grpc.CallOption) (*Transfer, error)
+	GetBatchTransfer(ctx context.Context, in *TransferInfoMsg, opts ...grpc.CallOption) (*GetBatchTransferMsg, error)
+	PutBatchTransfer(ctx context.Context, in *PutBatchTransferMsg, opts ...grpc.CallOption) (*TransferInfoMsg, error)
 }
 
 type transferServiceClient struct {
@@ -33,9 +34,18 @@ func NewTransferServiceClient(cc grpc.ClientConnInterface) TransferServiceClient
 	return &transferServiceClient{cc}
 }
 
-func (c *transferServiceClient) CreateTransfer(ctx context.Context, in *TransferInfo, opts ...grpc.CallOption) (*Transfer, error) {
-	out := new(Transfer)
-	err := c.cc.Invoke(ctx, "/proto.TransferService/CreateTransfer", in, out, opts...)
+func (c *transferServiceClient) GetBatchTransfer(ctx context.Context, in *TransferInfoMsg, opts ...grpc.CallOption) (*GetBatchTransferMsg, error) {
+	out := new(GetBatchTransferMsg)
+	err := c.cc.Invoke(ctx, "/proto.TransferService/GetBatchTransfer", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *transferServiceClient) PutBatchTransfer(ctx context.Context, in *PutBatchTransferMsg, opts ...grpc.CallOption) (*TransferInfoMsg, error) {
+	out := new(TransferInfoMsg)
+	err := c.cc.Invoke(ctx, "/proto.TransferService/PutBatchTransfer", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +56,8 @@ func (c *transferServiceClient) CreateTransfer(ctx context.Context, in *Transfer
 // All implementations must embed UnimplementedTransferServiceServer
 // for forward compatibility
 type TransferServiceServer interface {
-	CreateTransfer(context.Context, *TransferInfo) (*Transfer, error)
+	GetBatchTransfer(context.Context, *TransferInfoMsg) (*GetBatchTransferMsg, error)
+	PutBatchTransfer(context.Context, *PutBatchTransferMsg) (*TransferInfoMsg, error)
 	mustEmbedUnimplementedTransferServiceServer()
 }
 
@@ -54,8 +65,11 @@ type TransferServiceServer interface {
 type UnimplementedTransferServiceServer struct {
 }
 
-func (UnimplementedTransferServiceServer) CreateTransfer(context.Context, *TransferInfo) (*Transfer, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateTransfer not implemented")
+func (UnimplementedTransferServiceServer) GetBatchTransfer(context.Context, *TransferInfoMsg) (*GetBatchTransferMsg, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBatchTransfer not implemented")
+}
+func (UnimplementedTransferServiceServer) PutBatchTransfer(context.Context, *PutBatchTransferMsg) (*TransferInfoMsg, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PutBatchTransfer not implemented")
 }
 func (UnimplementedTransferServiceServer) mustEmbedUnimplementedTransferServiceServer() {}
 
@@ -70,20 +84,38 @@ func RegisterTransferServiceServer(s grpc.ServiceRegistrar, srv TransferServiceS
 	s.RegisterService(&TransferService_ServiceDesc, srv)
 }
 
-func _TransferService_CreateTransfer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TransferInfo)
+func _TransferService_GetBatchTransfer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TransferInfoMsg)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TransferServiceServer).CreateTransfer(ctx, in)
+		return srv.(TransferServiceServer).GetBatchTransfer(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.TransferService/CreateTransfer",
+		FullMethod: "/proto.TransferService/GetBatchTransfer",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TransferServiceServer).CreateTransfer(ctx, req.(*TransferInfo))
+		return srv.(TransferServiceServer).GetBatchTransfer(ctx, req.(*TransferInfoMsg))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TransferService_PutBatchTransfer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PutBatchTransferMsg)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransferServiceServer).PutBatchTransfer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.TransferService/PutBatchTransfer",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransferServiceServer).PutBatchTransfer(ctx, req.(*PutBatchTransferMsg))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -96,8 +128,12 @@ var TransferService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*TransferServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CreateTransfer",
-			Handler:    _TransferService_CreateTransfer_Handler,
+			MethodName: "GetBatchTransfer",
+			Handler:    _TransferService_GetBatchTransfer_Handler,
+		},
+		{
+			MethodName: "PutBatchTransfer",
+			Handler:    _TransferService_PutBatchTransfer_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
