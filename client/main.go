@@ -31,8 +31,8 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	res, err := c.CreateTransfer(ctx, &pb.TransferInfo{
-		Filename: "test2.png",
+	res, err := c.GetBatchTransfer(ctx, &pb.TransferInfoMsg{
+		Filename: "test.png",
 	})
 	if err != nil {
 		log.Fatalf("could not create transfer: %v", err)
@@ -47,4 +47,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	sd, _ := os.ReadFile("send/cnc.png")
+	sendres, err := c.PutBatchTransfer(ctx, &pb.PutBatchTransferMsg{Filename: "test2.png", File: sd})
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Wrote file to: %s", sendres.GetFilename())
 }
