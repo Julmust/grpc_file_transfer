@@ -80,6 +80,22 @@ func TestMain(m *testing.M) {
 
 	c = pb.NewTransferServiceClient(conn)
 
+	// Setup folders
+	os.RemoveAll("files/")
+	os.Mkdir("files/", 0755)
+	os.Mkdir("files/folder/", 0755)
+
+	// Copy over file
+	bf, err := os.ReadFile("test_files/test.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = os.WriteFile("files/test.png", bf, 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	ev := m.Run()
+
 	os.Exit(ev)
 }
