@@ -58,14 +58,18 @@ func TestFileList(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
+	// Get list of root level files
 	res, err := c.GetFileList(ctx, &pb.PutFolderName{Name: "/"})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Println(res)
-
-	// Check that file list is correct
+	// Check for expected files
+	for _, ef := range []string{"folder", "test.png", "test2.png"} {
+		if !slices.Contains(res.GetFiles(), "folder") {
+			t.Fatalf("Missing %s", ef)
+		}
+	}
 }
 
 func TestMain(m *testing.M) {
