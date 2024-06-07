@@ -54,6 +54,20 @@ func TestPutBatchTransfer(t *testing.T) {
 	}
 }
 
+func TestFileList(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	res, err := c.GetFileList(ctx, &pb.PutFolderName{Name: "/"})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println(res)
+
+	// Check that file list is correct
+}
+
 func TestMain(m *testing.M) {
 	lis, err := net.Listen("tcp", PORT)
 	if err != nil {
