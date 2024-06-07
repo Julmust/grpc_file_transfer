@@ -69,7 +69,7 @@ func main() {
 	s := grpc.NewServer()
 	pb.RegisterTransferServiceServer(s, &TransferServer{})
 
-	// log.Printf("server listening at %v", )
+	log.Printf("server listening at %v", PORT)
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to server: %v", err)
 	}
