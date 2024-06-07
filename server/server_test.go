@@ -67,7 +67,7 @@ func TestFileList(t *testing.T) {
 
 	// Check for expected files
 	for _, ef := range []string{"folder", "test.png", "test2.png"} {
-		if !slices.Contains(res.GetFiles(), "folder") {
+		if !slices.Contains(res.GetFiles(), ef) {
 			t.Fatalf("Missing %s", ef)
 		}
 	}
