@@ -19,7 +19,16 @@ message PutBatchTransferMsg {
     bytes file = 2;
 }
 
+message PutFolderName {
+    string name = 1;
+}
+
+message FileInfo {
+    repeated string files = 1;
+}
+
 service TransferService {
     rpc GetBatchTransfer(TransferInfoMsg) returns (GetBatchTransferMsg) {}
     rpc PutBatchTransfer(PutBatchTransferMsg) returns (TransferInfoMsg) {}
+    rpc GetFileList(PutFolderName) returns (FileInfo) {}
 }

@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type TransferServiceClient interface {
 	GetBatchTransfer(ctx context.Context, in *TransferInfoMsg, opts ...grpc.CallOption) (*GetBatchTransferMsg, error)
 	PutBatchTransfer(ctx context.Context, in *PutBatchTransferMsg, opts ...grpc.CallOption) (*TransferInfoMsg, error)
+	GetFileList(ctx context.Context, in *PutFolderName, opts ...grpc.CallOption) (*FileInfo, error)
 }
 
 type transferServiceClient struct {
@@ -52,12 +53,22 @@ func (c *transferServiceClient) PutBatchTransfer(ctx context.Context, in *PutBat
 	return out, nil
 }
 
+func (c *transferServiceClient) GetFileList(ctx context.Context, in *PutFolderName, opts ...grpc.CallOption) (*FileInfo, error) {
+	out := new(FileInfo)
+	err := c.cc.Invoke(ctx, "/proto.TransferService/GetFileList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TransferServiceServer is the server API for TransferService service.
 // All implementations must embed UnimplementedTransferServiceServer
 // for forward compatibility
 type TransferServiceServer interface {
 	GetBatchTransfer(context.Context, *TransferInfoMsg) (*GetBatchTransferMsg, error)
 	PutBatchTransfer(context.Context, *PutBatchTransferMsg) (*TransferInfoMsg, error)
+	GetFileList(context.Context, *PutFolderName) (*FileInfo, error)
 	mustEmbedUnimplementedTransferServiceServer()
 }
 
@@ -70,6 +81,9 @@ func (UnimplementedTransferServiceServer) GetBatchTransfer(context.Context, *Tra
 }
 func (UnimplementedTransferServiceServer) PutBatchTransfer(context.Context, *PutBatchTransferMsg) (*TransferInfoMsg, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PutBatchTransfer not implemented")
+}
+func (UnimplementedTransferServiceServer) GetFileList(context.Context, *PutFolderName) (*FileInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFileList not implemented")
 }
 func (UnimplementedTransferServiceServer) mustEmbedUnimplementedTransferServiceServer() {}
 
@@ -120,6 +134,24 @@ func _TransferService_PutBatchTransfer_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TransferService_GetFileList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PutFolderName)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransferServiceServer).GetFileList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.TransferService/GetFileList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransferServiceServer).GetFileList(ctx, req.(*PutFolderName))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TransferService_ServiceDesc is the grpc.ServiceDesc for TransferService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +166,10 @@ var TransferService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PutBatchTransfer",
 			Handler:    _TransferService_PutBatchTransfer_Handler,
+		},
+		{
+			MethodName: "GetFileList",
+			Handler:    _TransferService_GetFileList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
