@@ -59,6 +59,29 @@ func (s *TransferServer) PutBatchTransfer(ctx context.Context, in *pb.PutBatchTr
 	return &pb.TransferInfoMsg{Filename: fp}, nil
 }
 
+func (s *TransferServer) GetFileList(ctx context.Context, in *pb.PutFolderName) (*pb.FileInfo, error) {
+	path := in.GetName()
+	if string(path[0]) == "/" {
+		if len(path) == 1 {
+			path = "files/"
+		} else {
+			path = "files/" + path
+		}
+	}
+
+	fl, err := os.ReadDir(path)
+	if err != nil {
+		return &pb.FileInfo{}, err
+	}
+
+	ret := &pb.FileInfo{}
+	for _, f := range fl {
+		ret.Files = append(ret.Files, f.Name())
+	}
+
+	return ret, nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", PORT)
 	if err != nil {
